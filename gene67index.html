@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân Tách Cụm Từ & Dịch Thuật Ngữ Pháp</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        /* Base style for parsed phrase chips */
+        .phrase-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            margin: 2px 1px;
+            border-radius: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            cursor: pointer;
+            border-bottom: 2px transparent solid;
+            line-height: 2.1rem;
+        }
+
+        /* Pastel Highlight colors on hover or active filter */
+        .phrase-vp:hover, .phrase-vp.active-filter {
+            background-color: #ffedd5 !important; /* Pastel peach/orange */
+            color: #9a3412;
+            border-bottom-color: #f97316;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.15);
+        }
+
+        .phrase-np:hover, .phrase-np.active-filter {
+            background-color: #dbeafe !important; /* Pastel blue */
+            color: #1e40af;
+            border-bottom-color: #3b82f6;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+        }
+
+        .phrase-pp:hover, .phrase-pp.active-filter {
+            background-color: #dcfce7 !important; /* Pastel green */
+            color: #166534;
+            border-bottom-color: #22c55e;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15);
+        }
+
+        .phrase-adjp:hover, .phrase-adjp.active-filter {
+            background-color: #fef3c7 !important; /* Pastel yellow */
+            color: #92400e;
+            border-bottom-color: #eab308;
+            box-shadow: 0 2px 8px rgba(234, 179, 8, 0.15);
+        }
+
+        .phrase-other:hover, .phrase-other.active-filter {
+            background-color: #f3e8ff !important; /* Pastel purple */
+            color: #6b21a8;
+            border-bottom-color: #a855f7;
+            box-shadow: 0 2px 8px rgba(168, 85, 247, 0.15);
+        }
+
+        /* Hover Tooltip design */
+        .phrase-tag .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            z-index: 50;
+            pointer-events: none;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .phrase-tag:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Note formatting in brackets */
+        .bracket-note {
+            color: #64748b;
+            font-weight: 400;
+            font-size: 0.9em;
+            margin-left: 2px;
+            margin-right: 2px;
+        }
+
+        /* Bold emphasis for words immediately preceding brackets */
+        .bold-before-bracket {
+            font-weight: 700 !important;
+            color: #0f172a;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 pb-16">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-orange-200">
+                    <i class="fa-solid fa-highlighter"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 leading-tight">Phân Tích Cụm Từ Ngữ Pháp & Dịch Thuật</h1>
+                    <p class="text-xs text-slate-500">Chạy Offline 100% trên GitHub Pages & Hỗ trợ Gemini AI nâng cao</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleCodeModal()" class="text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 font-medium px-3.5 py-2 rounded-lg transition border border-slate-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-code text-blue-600"></i>
+                    <span>Mã Nguồn HTML</span>
+                </button>
+                <button onclick="toggleApiKeyInput()" class="text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 font-medium px-3.5 py-2 rounded-lg transition border border-slate-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-key text-amber-500"></i>
+                    <span>Cấu hình Gemini AI Key</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 gap-6">
+
+        <!-- API Key Option Section -->
+        <div id="apiKeySection" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 transition-all">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="font-semibold text-amber-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> Cấu hình Gemini API Key (Không bắt buộc)
+                </h3>
+                <button onclick="toggleApiKeyInput()" class="text-amber-700 hover:text-amber-900 text-xs">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <p class="text-xs text-amber-800 mb-3">
+                Nếu không có Key, ứng dụng sẽ dùng <b>Bộ Phân Tích Cú Pháp Nội Bộ (Offline Parser)</b>. Nếu nhập Key Gemini cá nhân, bạn có thể phân tích bất kỳ đoạn văn bản phức tạp nào bằng AI.
+            </p>
+            <div class="flex gap-2">
+                <input type="password" id="apiKeyInput" placeholder="Nhập API Key: AIzaSy..." class="flex-1 text-xs px-3 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white">
+                <button onclick="saveApiKey()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium px-4 py-2 rounded-lg transition">
+                    Lưu Key
+                </button>
+            </div>
+        </div>
+
+        <!-- Input Text Section -->
+        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+            <div class="flex justify-between items-center mb-3">
+                <label for="inputText" class="font-semibold text-slate-800 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-orange-500"></i> Đoạn văn bản Tiếng Anh:
+                </label>
+                <button onclick="resetToDefault()" class="text-xs text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-rotate-left"></i> Dùng văn bản mặc định
+                </button>
+            </div>
+            <textarea id="inputText" rows="3" class="w-full p-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:outline-none text-slate-700 text-base resize-y leading-relaxed" placeholder="Nhập văn bản tiếng Anh...">Do you fancy (thích) playing games with your mates (bạn bè)? Do you enjoy tasty (ngon) tea and snacks? If so, you won't want to miss Game Night at Chez Tournoi.</textarea>
+
+            <div class="mt-3 flex flex-wrap justify-between items-center gap-3">
+                <span class="text-xs text-slate-500">
+                    * Tự động in đậm từ đứng trước ngoặc đơn dạng <code class="bg-slate-100 text-slate-700 px-1 py-0.5 rounded font-semibold">fancy (thích)</code>.
+                </span>
+                <button id="analyzeBtn" onclick="analyzeText()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-sm px-6 py-2.5 rounded-xl shadow-md shadow-orange-100 transition flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Phân Tách & Dịch Cụm Từ</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5">Bộ lọc hiển thị theo loại cụm từ:</div>
+            <div class="flex flex-wrap gap-2 text-xs font-medium">
+                <button onclick="filterType('all')" class="legend-btn active px-3.5 py-2 rounded-lg border border-slate-200 bg-slate-800 text-white transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-border-all"></i> Tất cả
+                </button>
+                <button onclick="filterType('vp')" class="legend-btn px-3.5 py-2 rounded-lg border border-orange-200 bg-orange-50 text-orange-900 hover:bg-orange-100 transition flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span> Cụm động từ
+                </button>
+                <button onclick="filterType('np')" class="legend-btn px-3.5 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-900 hover:bg-blue-100 transition flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Cụm danh từ
+                </button>
+                <button onclick="filterType('pp')" class="legend-btn px-3.5 py-2 rounded-lg border border-green-200 bg-green-50 text-green-900 hover:bg-green-100 transition flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span> Cụm giới từ
+                </button>
+                <button onclick="filterType('adjp')" class="legend-btn px-3.5 py-2 rounded-lg border border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100 transition flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Cụm tính từ / Phó từ
+                </button>
+                <button onclick="filterType('other')" class="legend-btn px-3.5 py-2 rounded-lg border border-purple-200 bg-purple-50 text-purple-900 hover:bg-purple-100 transition flex items-center gap-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Thành phần lẻ / Từ nối
+                </button>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 min-h-[220px] relative">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-eye text-orange-500"></i> Văn bản đã tách cụm (Rê chuột vào cụm để xem Highlight)
+                </h2>
+                <div class="flex items-center gap-2">
+                    <span id="engineBadge" class="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-medium">
+                        Offline Local Parser
+                    </span>
+                    <span id="phraseCount" class="text-xs bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-medium">0 cụm</span>
+                </div>
+            </div>
+
+            <!-- Loading Spinner Overlay -->
+            <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center z-20">
+                <div class="w-10 h-10 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-3"></div>
+                <p class="text-sm font-medium text-slate-600" id="loadingText">Đang phân tích cú pháp...</p>
+            </div>
+
+            <!-- Parsed Content Container -->
+            <div id="resultContent" class="text-lg md:text-xl leading-relaxed text-slate-800 tracking-wide select-text py-2">
+                <!-- Phrases injected dynamically -->
+            </div>
+        </section>
+
+        <!-- Active Selected Phrase Detail Box -->
+        <div id="detailCard" class="bg-slate-900 text-white rounded-2xl p-4 shadow-lg border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-lg shrink-0">
+                    <i class="fa-solid fa-language"></i>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-400 font-medium mb-0.5">Dịch nghĩa cụm từ đang hover:</div>
+                    <div id="cardTranslation" class="font-semibold text-orange-300 text-base md:text-lg">Rê chuột hoặc chạm vào cụm từ bất kỳ ở trên</div>
+                </div>
+            </div>
+            <div class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
+                <span>Loại cú pháp:</span>
+                <span id="cardGrammarType" class="font-bold text-white">Chưa chọn</span>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Source Code Viewer Modal -->
+    <div id="codeModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 text-slate-100 rounded-2xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-700 overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-code text-orange-400"></i>
+                    <h3 class="font-bold text-sm text-white">Mã Nguồn HTML/CSS/JS Hoàn Chỉnh</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="copySourceCode()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                        <i class="fa-regular fa-copy"></i>
+                        <span id="copyBtnText">Copy Toàn Bộ Code</span>
+                    </button>
+                    <button onclick="toggleCodeModal()" class="text-slate-400 hover:text-white text-lg px-2">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 overflow-y-auto flex-1 font-mono text-xs text-emerald-400 bg-slate-950/80">
+                <pre id="codeDisplay" class="whitespace-pre-wrap break-all"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default Sample Data (Preset accurate parsing)
+        const DEFAULT_TEXT = "Do you fancy (thích) playing games with your mates (bạn bè)? Do you enjoy tasty (ngon) tea and snacks? If so, you won't want to miss Game Night at Chez Tournoi.";
+
+        const DEFAULT_PARSED_DATA = [
+            { text: "Do", type: "other", grammarName: "Trợ động từ", viTranslation: "Có" },
+            { text: " you", type: "np", grammarName: "Cụm danh từ / Đại từ", viTranslation: "bạn" },
+            { text: " fancy (thích)", type: "vp", grammarName: "Cụm động từ", viTranslation: "yêu thích / muốn" },
+            { text: " playing games", type: "vp", grammarName: "Cụm động từ (Danh động từ)", viTranslation: "chơi các trò chơi" },
+            { text: " with your mates (bạn bè)", type: "pp", grammarName: "Cụm giới từ", viTranslation: "với bạn bè của bạn" },
+            { text: "? ", type: "other", grammarName: "Dấu câu", viTranslation: "dấu hỏi" },
+            { text: "Do", type: "other", grammarName: "Trợ động từ", viTranslation: "Có" },
+            { text: " you", type: "np", grammarName: "Cụm danh từ / Đại từ", viTranslation: "bạn" },
+            { text: " enjoy", type: "vp", grammarName: "Cụm động từ", viTranslation: "thưởng thức / thích" },
+            { text: " tasty (ngon) tea and snacks", type: "np", grammarName: "Cụm danh từ", viTranslation: "trà thơm ngon và đồ ăn nhẹ" },
+            { text: "? ", type: "other", grammarName: "Dấu câu", viTranslation: "dấu hỏi" },
+            { text: "If so", type: "other", grammarName: "Từ nối / Liên từ", viTranslation: "Nếu vậy" },
+            { text: ", ", type: "other", grammarName: "Dấu câu", viTranslation: "dấu phẩy" },
+            { text: "you", type: "np", grammarName: "Cụm danh từ", viTranslation: "bạn" },
+            { text: " won't want to miss", type: "vp", grammarName: "Cụm động từ", viTranslation: "sẽ không muốn bỏ lỡ" },
+            { text: " Game Night", type: "np", grammarName: "Cụm danh từ", viTranslation: "Đêm hội trò chơi" },
+            { text: " at Chez Tournoi", type: "pp", grammarName: "Cụm giới từ", viTranslation: "tại Chez Tournoi" },
+            { text: ".", type: "other", grammarName: "Dấu câu", viTranslation: "dấu chấm" }
+        ];
+
+        let currentParsedItems = [];
+
+        window.onload = function() {
+            const savedKey = localStorage.getItem("gemini_api_key");
+            if (savedKey) {
+                document.getElementById('apiKeyInput').value = savedKey;
+            }
+            // Initial render with default dataset
+            renderParsedData(DEFAULT_PARSED_DATA, "Offline Local Parser");
+        };
+
+        function toggleApiKeyInput() {
+            document.getElementById('apiKeySection').classList.toggle('hidden');
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            localStorage.setItem("gemini_api_key", key);
+            alert("Đã lưu Gemini API Key thành công!");
+            toggleApiKeyInput();
+        }
+
+        function resetToDefault() {
+            document.getElementById('inputText').value = DEFAULT_TEXT;
+            renderParsedData(DEFAULT_PARSED_DATA, "Offline Local Parser");
+        }
+
+        function renderParsedData(parsedItems, engineName = "Offline Parser") {
+            currentParsedItems = parsedItems;
+            const container = document.getElementById('resultContent');
+            container.innerHTML = '';
+
+            document.getElementById('phraseCount').innerText = `${parsedItems.length} cụm từ`;
+            document.getElementById('engineBadge').innerText = engineName;
+
+            parsedItems.forEach((item, index) => {
+                const tag = document.createElement('span');
+                tag.className = `phrase-tag phrase-${item.type}`;
+                tag.setAttribute('data-type', item.type);
+                tag.setAttribute('data-index', index);
+
+                // Format word immediately before bracket to be BOLD
+                const formattedContent = formatBracketText(item.text);
+
+                tag.innerHTML = `
+                    ${formattedContent}
+                    <span class="tooltip bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg shadow-xl font-normal border border-slate-700">
+                        <span class="text-orange-400 font-semibold">${item.viTranslation || item.text}</span>
+                        <span class="text-slate-400 block text-[10px] mt-0.5">${item.grammarName}</span>
+                    </span>
+                `;
+
+                // Add interactive mouse event listeners
+                tag.addEventListener('mouseenter', () => updateDetailCard(item));
+                tag.addEventListener('click', () => updateDetailCard(item));
+
+                container.appendChild(tag);
+            });
+        }
+
+        function updateDetailCard(item) {
+            document.getElementById('cardTranslation').innerText = `"${item.text.trim()}" ➔ ${item.viTranslation || 'N/A'}`;
+            document.getElementById('cardGrammarType').innerText = item.grammarName;
+        }
+
+        // Regex transformation to bold words before parentheses
+        function formatBracketText(text) {
+            return text.replace(/(\b[\w']+\b)\s*(\([\s\S]*?\))/g, '<b class="bold-before-bracket">$1</b><span class="bracket-note">$2</span>');
+        }
+
+        // Filtering phrases by type
+        function filterType(type) {
+            const tags = document.querySelectorAll('.phrase-tag');
+            const buttons = document.querySelectorAll('.legend-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active', 'bg-slate-800', 'text-white'));
+
+            tags.forEach(tag => {
+                if (type === 'all') {
+                    tag.classList.remove('active-filter');
+                    tag.style.opacity = '1';
+                } else if (tag.getAttribute('data-type') === type) {
+                    tag.classList.add('active-filter');
+                    tag.style.opacity = '1';
+                } else {
+                    tag.classList.remove('active-filter');
+                    tag.style.opacity = '0.25';
+                }
+            });
+        }
+
+        async function analyzeText() {
+            const rawText = document.getElementById('inputText').value.trim();
+            if (!rawText) return;
+
+            // If using default text, load precise dataset instantly
+            if (rawText === DEFAULT_TEXT) {
+                renderParsedData(DEFAULT_PARSED_DATA, "Offline Local Parser");
+                return;
+            }
+
+            const apiKey = localStorage.getItem("gemini_api_key") || document.getElementById('apiKeyInput').value.trim();
+
+            // If API key is present, try Gemini AI online analysis
+            if (apiKey) {
+                try {
+                    await analyzeWithGeminiAI(rawText, apiKey);
+                    return;
+                } catch (err) {
+                    console.warn("Gemini API Error, falling back to Local Rule Parser:", err);
+                }
+            }
+
+            // Fallback: Local Rule-Based NLP Parser (Works 100% Offline without API Key)
+            const offlineResult = fallbackLocalParser(rawText);
+            renderParsedData(offlineResult, "Offline Rule Parser");
+        }
+
+        // Online Gemini AI Parser
+        async function analyzeWithGeminiAI(rawText, apiKey) {
+            const loader = document.getElementById('loadingOverlay');
+            document.getElementById('loadingText').innerText = "Đang phân tích bằng AI Gemini...";
+            loader.classList.remove('hidden');
+
+            const systemPrompt = `You are a grammatical parser. Break the given English text into phrases.
+Classify into:
+- "vp": Verb Phrase (Cụm động từ)
+- "np": Noun Phrase (Cụm danh từ)
+- "pp": Prepositional Phrase (Cụm giới từ)
+- "adjp": Adjective/Adverb Phrase (Cụm tính từ / Phó từ)
+- "other": Function words / Punctuation (Thành phần lẻ)
+
+MUST retain bracketed notes like (thích). Provide Vietnamese translation in 'viTranslation' and type name in 'grammarName'. Return pure JSON array.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: rawText }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                text: { type: "STRING" },
+                                type: { type: "STRING", enum: ["vp", "np", "pp", "adjp", "other"] },
+                                grammarName: { type: "STRING" },
+                                viTranslation: { type: "STRING" }
+                            },
+                            propertyOrdering: ["text", "type", "grammarName", "viTranslation"]
+                        }
+                    }
+                }
+            };
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error("API call failed");
+
+                const result = await response.json();
+                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (jsonText) {
+                    const parsedData = JSON.parse(jsonText);
+                    renderParsedData(parsedData, "Gemini 3 Flash AI");
+                } else {
+                    throw new Error("Invalid response format");
+                }
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        function fallbackLocalParser(text) {
+            // Split clauses/sentences keeping notes intact
+            const tokens = text.match(/(\w+\s*\(.*?\)|[\w']+|[^\w\s]+|\s+)/g) || [text];
+            const result = [];
+            
+            const prepositions = new Set(["in", "on", "at", "with", "by", "for", "from", "about", "to", "into", "through", "over", "under"]);
+            const verbs = new Set(["is", "are", "am", "was", "were", "do", "does", "did", "enjoy", "like", "fancy", "want", "play", "playing", "miss", "go", "see"]);
+            const pronouns = new Set(["you", "i", "he", "she", "it", "we", "they", "me", "him", "her", "us", "them"]);
+
+            let currentChunk = "";
+            let currentType = "other";
+
+            tokens.forEach((token) => {
+                const cleanToken = token.trim().toLowerCase().replace(/\s*\(.*?\)/, '');
+
+                if (!cleanToken) {
+                    currentChunk += token;
+                    return;
+                }
+
+                let tokenType = "other";
+                let name = "Thành phần lẻ";
+
+                if (prepositions.has(cleanToken)) {
+                    tokenType = "pp";
+                    name = "Cụm giới từ";
+                } else if (verbs.has(cleanToken)) {
+                    tokenType = "vp";
+                    name = "Cụm động từ";
+                } else if (pronouns.has(cleanToken) || /[a-zA-Z]/.test(cleanToken)) {
+                    tokenType = "np";
+                    name = "Cụm danh từ";
+                }
+
+                if (currentType === tokenType || currentChunk === "") {
+                    currentChunk += token;
+                    currentType = tokenType;
+                } else {
+                    result.push({
+                        text: currentChunk,
+                        type: currentType,
+                        grammarName: getGrammarLabel(currentType),
+                        viTranslation: "Tự động phân tách (Offline)"
+                    });
+                    currentChunk = token;
+                    currentType = tokenType;
+                }
+            });
+
+            if (currentChunk) {
+                result.push({
+                    text: currentChunk,
+                    type: currentType,
+                    grammarName: getGrammarLabel(currentType),
+                    viTranslation: "Tự động phân tách (Offline)"
+                });
+            }
+
+            return result;
+        }
+
+        function getGrammarLabel(type) {
+            switch(type) {
+                case 'vp': return 'Cụm động từ';
+                case 'np': return 'Cụm danh từ';
+                case 'pp': return 'Cụm giới từ';
+                case 'adjp': return 'Cụm tính từ / Phó từ';
+                default: return 'Thành phần lẻ / Từ nối';
+            }
+        }
+
+        function toggleCodeModal() {
+            const modal = document.getElementById('codeModal');
+            const display = document.getElementById('codeDisplay');
+            
+            if (modal.classList.contains('hidden')) {
+                display.textContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function copySourceCode() {
+            const codeText = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const tempInput = document.createElement("textarea");
+            tempInput.value = codeText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            const btnText = document.getElementById('copyBtnText');
+            btnText.innerText = "Đã Sao Chép!";
+            setTimeout(() => {
+                btnText.innerText = "Copy Toàn Bộ Code";
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
