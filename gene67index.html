@@ -101,9 +101,39 @@
             font-weight: 700 !important;
             color: #0f172a;
         }
+/* --- Watermark phủ toàn màn hình (1 chữ to nằm giữa, nghiêng) --- */
+.watermark-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 150vw;
+  height: 125vh;
+  pointer-events: none; /* Không cản trở click/cuộn trang */
+  z-index: 9999;
+  opacity: 0.30; /* Độ mờ vừa phải để nhìn rõ nội dung bên dưới */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+.watermark-text {
+  font-weight: 1000;
+  font-size: 8vw; /* Cỡ chữ tự động co giãn cực to theo màn hình */
+  color: #888888; /* Màu xám nhạt */
+  transform: rotate(-35deg); /* Nghiêng góc 35 độ sang trái cho đẹp mắt */
+  white-space: nowrap;
+  letter-spacing: 2px;
+}
     </style>
 </head>
 <body class="min-h-screen text-slate-800 pb-16">
+<!-- Đặt ngay dưới <body> -->
+<div class="watermark-overlay">
+  <!-- Bán có thể thay "TÊN WATERMARK" bằng chữ mong muốn -->
+  <span class="watermark-text">PLAYTOEIC</span>
+</div>
 
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
