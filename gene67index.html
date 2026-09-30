@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phân Tách Cụm Từ & Dịch Thuật Ngữ Pháp</title>
+    <title>Phân Tách Cụm Từ Ngữ Pháp & Xuất Dữ Liệu</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     
     <style>
         body {
@@ -101,59 +101,34 @@
             font-weight: 700 !important;
             color: #0f172a;
         }
-/* --- Watermark phủ toàn màn hình (1 chữ to nằm giữa, nghiêng) --- */
-.watermark-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 150vw;
-  height: 125vh;
-  pointer-events: none; /* Không cản trở click/cuộn trang */
-  z-index: 9999;
-  opacity: 0.30; /* Độ mờ vừa phải để nhìn rõ nội dung bên dưới */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  user-select: none;
-}
 
-.watermark-text {
-  font-weight: 1000;
-  font-size: 8vw; /* Cỡ chữ tự động co giãn cực to theo màn hình */
-  color: #888888; /* Màu xám nhạt */
-  transform: rotate(-35deg); /* Nghiêng góc 35 độ sang trái cho đẹp mắt */
-  white-space: nowrap;
-  letter-spacing: 2px;
-}
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
     </style>
 </head>
 <body class="min-h-screen text-slate-800 pb-16">
-<!-- Đặt ngay dưới <body> -->
-<div class="watermark-overlay">
-  <!-- Bán có thể thay "TÊN WATERMARK" bằng chữ mong muốn -->
-  <span class="watermark-text">PLAYTOEIC</span>
-</div>
 
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-orange-500 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-orange-200">
-                    <i class="fa-solid fa-highlighter"></i>
+                    <i class="fa-solid fa-layer-group"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 leading-tight">Phân Tích Cụm Từ Ngữ Pháp & Dịch Thuật</h1>
-                    <p class="text-xs text-slate-500">Chạy Offline 100% trên GitHub Pages & Hỗ trợ Gemini AI nâng cao</p>
+                    <h1 class="text-xl font-bold text-slate-900 leading-tight">Phân Tách Cụm Từ Ngữ Pháp</h1>
+                    <p class="text-xs text-slate-500">Highlight tương tác & Xuất cấu trúc mảng dữ liệu</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="toggleCodeModal()" class="text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 font-medium px-3.5 py-2 rounded-lg transition border border-slate-200 flex items-center gap-1.5">
-                    <i class="fa-solid fa-code text-blue-600"></i>
-                    <span>Mã Nguồn HTML</span>
+                <!-- Button to Open Data/Array Structure Modal -->
+                <button onclick="toggleDataModal()" class="text-xs text-slate-800 bg-amber-100 hover:bg-amber-200 font-semibold px-3.5 py-2 rounded-lg transition border border-amber-300 flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-brackets-curly text-amber-700"></i>
+                    <span>HTML của đoạn</span>
                 </button>
                 <button onclick="toggleApiKeyInput()" class="text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 font-medium px-3.5 py-2 rounded-lg transition border border-slate-200 flex items-center gap-1.5">
                     <i class="fa-solid fa-key text-amber-500"></i>
-                    <span>Cấu hình Gemini AI Key</span>
+                    <span>Cấu hình Gemini AI</span>
                 </button>
             </div>
         </div>
@@ -161,18 +136,18 @@
 
     <main class="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 gap-6">
 
-        <!-- API Key Option Section -->
+        <!-- API Key Configuration Section -->
         <div id="apiKeySection" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 transition-all">
             <div class="flex justify-between items-center mb-2">
                 <h3 class="font-semibold text-amber-900 text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-sliders"></i> Cấu hình Gemini API Key (Không bắt buộc)
+                    <i class="fa-solid fa-sliders"></i> Cấu hình Gemini API Key (Tùy chọn)
                 </h3>
                 <button onclick="toggleApiKeyInput()" class="text-amber-700 hover:text-amber-900 text-xs">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
             <p class="text-xs text-amber-800 mb-3">
-                Nếu không có Key, ứng dụng sẽ dùng <b>Bộ Phân Tích Cú Pháp Nội Bộ (Offline Parser)</b>. Nếu nhập Key Gemini cá nhân, bạn có thể phân tích bất kỳ đoạn văn bản phức tạp nào bằng AI.
+                Nếu không dùng Key, ứng dụng mặc định dùng **Offline Rule Parser**. Nếu muốn AI tự động dịch nghĩa chuẩn xác nhất cho các đoạn văn bản mới, hãy nhập Gemini API Key của bạn.
             </p>
             <div class="flex gap-2">
                 <input type="password" id="apiKeyInput" placeholder="Nhập API Key: AIzaSy..." class="flex-1 text-xs px-3 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white">
@@ -189,14 +164,14 @@
                     <i class="fa-solid fa-pen-to-square text-orange-500"></i> Đoạn văn bản Tiếng Anh:
                 </label>
                 <button onclick="resetToDefault()" class="text-xs text-orange-600 hover:text-orange-700 font-medium flex items-center gap-1">
-                    <i class="fa-solid fa-rotate-left"></i> Dùng văn bản mặc định
+                    <i class="fa-solid fa-rotate-left"></i> Khôi phục văn bản mẫu
                 </button>
             </div>
             <textarea id="inputText" rows="3" class="w-full p-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:outline-none text-slate-700 text-base resize-y leading-relaxed" placeholder="Nhập văn bản tiếng Anh...">Do you fancy (thích) playing games with your mates (bạn bè)? Do you enjoy tasty (ngon) tea and snacks? If so, you won't want to miss Game Night at Chez Tournoi.</textarea>
 
             <div class="mt-3 flex flex-wrap justify-between items-center gap-3">
                 <span class="text-xs text-slate-500">
-                    * Tự động in đậm từ đứng trước ngoặc đơn dạng <code class="bg-slate-100 text-slate-700 px-1 py-0.5 rounded font-semibold">fancy (thích)</code>.
+                    * Tự động in đậm từ ngay trước ngoặc đơn ví dụ: <code class="bg-slate-100 text-slate-700 px-1 py-0.5 rounded font-semibold">fancy (thích)</code>.
                 </span>
                 <button id="analyzeBtn" onclick="analyzeText()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-sm px-6 py-2.5 rounded-xl shadow-md shadow-orange-100 transition flex items-center gap-2">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -205,8 +180,9 @@
             </div>
         </section>
 
+        <!-- Legend and Filters -->
         <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5">Bộ lọc hiển thị theo loại cụm từ:</div>
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5">Bộ lọc loại cụm từ:</div>
             <div class="flex flex-wrap gap-2 text-xs font-medium">
                 <button onclick="filterType('all')" class="legend-btn active px-3.5 py-2 rounded-lg border border-slate-200 bg-slate-800 text-white transition flex items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-border-all"></i> Tất cả
@@ -229,10 +205,11 @@
             </div>
         </section>
 
+        <!-- Interactive Text Display Area -->
         <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 min-h-[220px] relative">
             <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
                 <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-eye text-orange-500"></i> Văn bản đã tách cụm (Rê chuột vào cụm để xem Highlight)
+                    <i class="fa-solid fa-eye text-orange-500"></i> Kết quả phân tách (Rê chuột vào để Highlight)
                 </h2>
                 <div class="flex items-center gap-2">
                     <span id="engineBadge" class="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-medium">
@@ -245,7 +222,7 @@
             <!-- Loading Spinner Overlay -->
             <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center z-20">
                 <div class="w-10 h-10 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mb-3"></div>
-                <p class="text-sm font-medium text-slate-600" id="loadingText">Đang phân tích cú pháp...</p>
+                <p class="text-sm font-medium text-slate-600" id="loadingText">Đang phân tích...</p>
             </div>
 
             <!-- Parsed Content Container -->
@@ -254,51 +231,53 @@
             </div>
         </section>
 
-        <!-- Active Selected Phrase Detail Box -->
+        <!-- Selected Phrase Detail Info Box -->
         <div id="detailCard" class="bg-slate-900 text-white rounded-2xl p-4 shadow-lg border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-lg shrink-0">
                     <i class="fa-solid fa-language"></i>
                 </div>
                 <div>
-                    <div class="text-xs text-slate-400 font-medium mb-0.5">Dịch nghĩa cụm từ đang hover:</div>
+                    <div class="text-xs text-slate-400 font-medium mb-0.5">Dịch nghĩa cụm từ đang rê chuột:</div>
                     <div id="cardTranslation" class="font-semibold text-orange-300 text-base md:text-lg">Rê chuột hoặc chạm vào cụm từ bất kỳ ở trên</div>
                 </div>
             </div>
             <div class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
-                <span>Loại cú pháp:</span>
+                <span>Loại cụm:</span>
                 <span id="cardGrammarType" class="font-bold text-white">Chưa chọn</span>
             </div>
         </div>
 
     </main>
 
-    <!-- Source Code Viewer Modal -->
-    <div id="codeModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="dataModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-slate-900 text-slate-100 rounded-2xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-700 overflow-hidden">
             <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-code text-orange-400"></i>
-                    <h3 class="font-bold text-sm text-white">Mã Nguồn HTML/CSS/JS Hoàn Chỉnh</h3>
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-code text-amber-400 text-lg"></i>
+                    <div>
+                        <h3 class="font-bold text-sm text-white">Cấu trúc dữ liệu mảng (HTML / JSON của đoạn)</h3>
+                        <p class="text-[11px] text-slate-400">Định dạng mảng chứa đối tượng các cụm từ ngữ pháp</p>
+                    </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="copySourceCode()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition flex items-center gap-1.5">
-                        <i class="fa-regular fa-copy"></i>
-                        <span id="copyBtnText">Copy Toàn Bộ Code</span>
+                    <button onclick="copyDataArray()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-1.5">
+                        <i class="fa-regular fa-copy text-sm"></i>
+                        <span id="copyDataBtnText">Sao Chép Mảng</span>
                     </button>
-                    <button onclick="toggleCodeModal()" class="text-slate-400 hover:text-white text-lg px-2">
+                    <button onclick="toggleDataModal()" class="text-slate-400 hover:text-white text-lg px-2">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
             </div>
-            <div class="p-4 overflow-y-auto flex-1 font-mono text-xs text-emerald-400 bg-slate-950/80">
-                <pre id="codeDisplay" class="whitespace-pre-wrap break-all"></pre>
+            <div class="p-5 overflow-y-auto flex-1 bg-slate-950/90 code-font text-xs text-amber-300 leading-relaxed">
+                <pre id="dataArrayDisplay" class="whitespace-pre-wrap break-all"></pre>
             </div>
         </div>
     </div>
 
     <script>
-        // Default Sample Data (Preset accurate parsing)
+        // Initial Default Dataset matched precisely with user specification
         const DEFAULT_TEXT = "Do you fancy (thích) playing games with your mates (bạn bè)? Do you enjoy tasty (ngon) tea and snacks? If so, you won't want to miss Game Night at Chez Tournoi.";
 
         const DEFAULT_PARSED_DATA = [
@@ -329,7 +308,7 @@
             if (savedKey) {
                 document.getElementById('apiKeyInput').value = savedKey;
             }
-            // Initial render with default dataset
+            // Initial render
             renderParsedData(DEFAULT_PARSED_DATA, "Offline Local Parser");
         };
 
@@ -363,7 +342,7 @@
                 tag.setAttribute('data-type', item.type);
                 tag.setAttribute('data-index', index);
 
-                // Format word immediately before bracket to be BOLD
+                // Format word immediately preceding bracket to be BOLD
                 const formattedContent = formatBracketText(item.text);
 
                 tag.innerHTML = `
@@ -417,7 +396,6 @@
             const rawText = document.getElementById('inputText').value.trim();
             if (!rawText) return;
 
-            // If using default text, load precise dataset instantly
             if (rawText === DEFAULT_TEXT) {
                 renderParsedData(DEFAULT_PARSED_DATA, "Offline Local Parser");
                 return;
@@ -425,7 +403,6 @@
 
             const apiKey = localStorage.getItem("gemini_api_key") || document.getElementById('apiKeyInput').value.trim();
 
-            // If API key is present, try Gemini AI online analysis
             if (apiKey) {
                 try {
                     await analyzeWithGeminiAI(rawText, apiKey);
@@ -435,12 +412,12 @@
                 }
             }
 
-            // Fallback: Local Rule-Based NLP Parser (Works 100% Offline without API Key)
+            // Fallback: Local Rule-Based Parser
             const offlineResult = fallbackLocalParser(rawText);
             renderParsedData(offlineResult, "Offline Rule Parser");
         }
 
-        // Online Gemini AI Parser
+        // Gemini AI Online Parser
         async function analyzeWithGeminiAI(rawText, apiKey) {
             const loader = document.getElementById('loadingOverlay');
             document.getElementById('loadingText').innerText = "Đang phân tích bằng AI Gemini...";
@@ -502,8 +479,8 @@ MUST retain bracketed notes like (thích). Provide Vietnamese translation in 'vi
             }
         }
 
+        // Rule-based Offline Fallback
         function fallbackLocalParser(text) {
-            // Split clauses/sentences keeping notes intact
             const tokens = text.match(/(\w+\s*\(.*?\)|[\w']+|[^\w\s]+|\s+)/g) || [text];
             const result = [];
             
@@ -523,17 +500,13 @@ MUST retain bracketed notes like (thích). Provide Vietnamese translation in 'vi
                 }
 
                 let tokenType = "other";
-                let name = "Thành phần lẻ";
 
                 if (prepositions.has(cleanToken)) {
                     tokenType = "pp";
-                    name = "Cụm giới từ";
                 } else if (verbs.has(cleanToken)) {
                     tokenType = "vp";
-                    name = "Cụm động từ";
                 } else if (pronouns.has(cleanToken) || /[a-zA-Z]/.test(cleanToken)) {
                     tokenType = "np";
-                    name = "Cụm danh từ";
                 }
 
                 if (currentType === tokenType || currentChunk === "") {
@@ -544,7 +517,7 @@ MUST retain bracketed notes like (thích). Provide Vietnamese translation in 'vi
                         text: currentChunk,
                         type: currentType,
                         grammarName: getGrammarLabel(currentType),
-                        viTranslation: "Tự động phân tách (Offline)"
+                        viTranslation: "Phân tách Offline"
                     });
                     currentChunk = token;
                     currentType = tokenType;
@@ -556,7 +529,7 @@ MUST retain bracketed notes like (thích). Provide Vietnamese translation in 'vi
                     text: currentChunk,
                     type: currentType,
                     grammarName: getGrammarLabel(currentType),
-                    viTranslation: "Tự động phân tách (Offline)"
+                    viTranslation: "Phân tách Offline"
                 });
             }
 
@@ -573,20 +546,27 @@ MUST retain bracketed notes like (thích). Provide Vietnamese translation in 'vi
             }
         }
 
-        function toggleCodeModal() {
-            const modal = document.getElementById('codeModal');
-            const display = document.getElementById('codeDisplay');
+        // Toggle Data Array Modal ("HTML của đoạn")
+        function toggleDataModal() {
+            const modal = document.getElementById('dataModal');
+            const display = document.getElementById('dataArrayDisplay');
             
             if (modal.classList.contains('hidden')) {
-                display.textContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                // Format objects in the array to mimic user requested JavaScript style
+                const formattedArrayString = "[\n" + currentParsedItems.map(item => {
+                    return `  { text: ${JSON.stringify(item.text)}, type: "${item.type}", grammarName: "${item.grammarName}", viTranslation: "${item.viTranslation || ''}" }`;
+                }).join(",\n") + "\n]";
+
+                display.textContent = formattedArrayString;
                 modal.classList.remove('hidden');
             } else {
                 modal.classList.add('hidden');
             }
         }
 
-        function copySourceCode() {
-            const codeText = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        // Copy Data Array String
+        function copyDataArray() {
+            const codeText = document.getElementById('dataArrayDisplay').textContent;
             const tempInput = document.createElement("textarea");
             tempInput.value = codeText;
             document.body.appendChild(tempInput);
@@ -594,10 +574,10 @@ MUST retain bracketed notes like (thích). Provide Vietnamese translation in 'vi
             document.execCommand("copy");
             document.body.removeChild(tempInput);
 
-            const btnText = document.getElementById('copyBtnText');
+            const btnText = document.getElementById('copyDataBtnText');
             btnText.innerText = "Đã Sao Chép!";
             setTimeout(() => {
-                btnText.innerText = "Copy Toàn Bộ Code";
+                btnText.innerText = "Sao Chép Mảng";
             }, 2000);
         }
     </script>
