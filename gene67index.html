@@ -170,7 +170,7 @@
 
             <div class="mt-3 flex flex-wrap justify-between items-center gap-3">
                 <span class="text-xs text-slate-500">
-                    * Định dạng ngắt dòng thủ công được tích hợp sẵn qua thuộc tính <code class="bg-slate-100 text-slate-700 px-1 py-0.5 rounded font-semibold">breakLine: true</code>
+                    * Ngắt dòng được tự động nhận diện từ văn bản đầu vào. Dòng mới trong textarea = một mốc <code class="bg-slate-100 text-slate-700 px-1 py-0.5 rounded font-semibold">breakLine: true</code>
                 </span>
                 <button id="analyzeBtn" onclick="analyzeText()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-sm px-6 py-2 rounded-lg transition flex items-center gap-2 shadow-md">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -208,7 +208,7 @@
         <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 min-h-[220px] relative">
             <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
                 <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-eye text-orange-500"></i> Kết quả phân tách (Có ngắt dòng tự động)
+                    <i class="fa-solid fa-eye text-orange-500"></i> Kết quả phân tách (Tự động ngắt dòng)
                 </h2>
                 <div class="flex items-center gap-2">
                     <span id="engineBadge" class="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-medium">
@@ -256,7 +256,7 @@
                 <div class="flex items-center gap-2.5">
                     <i class="fa-solid fa-code text-amber-400 text-lg"></i>
                     <div>
-                        <h3 class="font-bold text-sm text-white">Cấu trúc dữ liệu mảng (Dạng ngắt dòng tự động)</h3>
+                        <h3 class="font-bold text-sm text-white">Cấu trúc dữ liệu mảng (Tự động nhận diện dòng mới)</h3>
                         <p class="text-[11px] text-slate-400">Định dạng JSON / JavaScript array chuẩn với breakLine: true</p>
                     </div>
                 </div>
@@ -359,9 +359,11 @@ Applications (đơn xin) are available (có sẵn) on our Web site, www.zestfulc
         ];
 
         let currentParsedItems = [];
+        let sourceLineBreaks = new Set(); // Lưu trữ vị trí ngắt dòng từ văn bản gốc
 
         window.onload = function() {
             document.getElementById('inputText').value = DEFAULT_TEXT;
+            captureLineBreaksFromInput();
             renderParsedData(DEFAULT_PARSED_DATA, "Manual BreakLine Parser");
         };
 
@@ -378,9 +380,28 @@ Applications (đơn xin) are available (có sẵn) on our Web site, www.zestfulc
 
         function resetToDefault() {
             document.getElementById('inputText').value = DEFAULT_TEXT;
+            captureLineBreaksFromInput();
             renderParsedData(DEFAULT_PARSED_DATA, "Manual BreakLine Parser");
         }
 
+        // ✅ TẬP HỢP VỊ TRÍ NGẮT DÒNG TỪ TEXTAREA
+        function captureLineBreaksFromInput() {
+            const rawText = document.getElementById('inputText').value;
+            sourceLineBreaks = new Set();
+
+            let currentPos = 0;
+            const lines = rawText.split('\n');
+            
+            for (let i = 0; i < lines.length; i++) {
+                if (i > 0) {
+                    currentPos += 1; // Tính '\n'
+                }
+                sourceLineBreaks.add(lines[i].trim());
+                currentPos += lines[i].length;
+            }
+        }
+
+        // ✅ THÊM BREAKLINE DỰA TRÊN NGẮT DÒNG VÀ CÂU
         function addAutoBreakLines(items) {
             if (!Array.isArray(items) || items.length === 0) return items;
 
@@ -390,9 +411,12 @@ Applications (đơn xin) are available (có sẵn) on our Web site, www.zestfulc
                 const previousText = index > 0 ? String(normalized[index - 1]?.text || '') : '';
                 const hasLineBreakFlag = !!item.breakLine;
                 const previousEndsSentence = /[.!?]$/.test(previousText.trim());
-                const currentContainsNewline = /\n/.test(String(item.text || ''));
+                
+                // Kiểm tra nếu item này bắt đầu một dòng mới từ sourceLineBreaks
+                const currentTrimmed = String(item.text || '').trim();
+                const startsNewLineFromInput = sourceLineBreaks.has(currentTrimmed);
 
-                if (index === 0 || hasLineBreakFlag || previousEndsSentence || currentContainsNewline) {
+                if (index === 0 || hasLineBreakFlag || previousEndsSentence || startsNewLineFromInput) {
                     item.breakLine = true;
                 }
             });
@@ -471,6 +495,8 @@ Applications (đơn xin) are available (có sẵn) on our Web site, www.zestfulc
             const rawText = document.getElementById('inputText').value.trim();
             if (!rawText) return;
 
+            captureLineBreaksFromInput();
+
             if (rawText === DEFAULT_TEXT) {
                 renderParsedData(DEFAULT_PARSED_DATA, "Manual BreakLine Parser");
                 return;
@@ -503,7 +529,7 @@ Classify into:
 - "adjp": Adjective/Adverb Phrase (Cụm tính từ / Phó từ)
 - "other": Function words / Punctuation (Thành phần lẻ)
 
-MUST retain bracketed notes like (phục vụ). Provide Vietnamese translation in 'viTranslation' and type name in 'grammarName'. Return pure JSON array. The front-end will automatically add breakLine: true based on sentence boundaries, so do not include breakLine in the response.`;
+MUST retain bracketed notes like (phục vụ). Provide Vietnamese translation in 'viTranslation' and type name in 'grammarName'. Return pure JSON array. Do not include breakLine property.`;
 
             const payload = {
                 contents: [{ parts: [{ text: rawText }] }],
