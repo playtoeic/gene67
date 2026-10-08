@@ -121,7 +121,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="toggleDataModal()" class="text-xs text-slate-800 bg-amber-100 hover:bg-amber-200 font-semibold px-3.5 py-2 rounded-lg transition border border-amber-300 flex items-center gap-1.5 shadow-sm">
+                <button onclick="toggleDataModal()" class="text-xs text-slate-800 bg-amber-100 hover:bg-amber-200 font-semibold px-3.5 py-2 rounded-lg transition border border-amber-300 flex items-center gap-1.5">
                     <i class="fa-solid fa-brackets-curly text-amber-700"></i>
                     <span>HTML của đoạn</span>
                 </button>
@@ -149,7 +149,7 @@
                 Nếu không dùng Key, ứng dụng mặc định dùng **Offline Rule Parser**.
             </p>
             <div class="flex gap-2">
-                <input type="password" id="apiKeyInput" placeholder="Nhập API Key: AIzaSy..." class="flex-1 text-xs px-3 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white">
+                <input type="password" id="apiKeyInput" placeholder="Nhập API Key: AIzaSy..." class="flex-1 text-xs px-3 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
                 <button onclick="saveApiKey()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium px-4 py-2 rounded-lg transition">
                     Lưu Key
                 </button>
@@ -166,13 +166,13 @@
                     <i class="fa-solid fa-rotate-left"></i> Khôi phục văn bản mẫu
                 </button>
             </div>
-            <textarea id="inputText" rows="4" class="w-full p-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:outline-none text-slate-700 text-base resize-y leading-relaxed" placeholder="Nhập văn bản tiếng Anh...">Questions 147–148 refer to the following job posting. Help Wanted Zestful Cuisine is looking for a server (phục vụ)...</textarea>
+            <textarea id="inputText" rows="4" class="w-full p-3.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:outline-none text-slate-700 text-base resize-y leading-relaxed"></textarea>
 
             <div class="mt-3 flex flex-wrap justify-between items-center gap-3">
                 <span class="text-xs text-slate-500">
-                    * Định dạng ngắt dòng thủ công được tích hợp sẵn qua thuộc tính <code class="bg-slate-100 text-slate-700 px-1 py-0.5 rounded font-semibold">breakLine: true</code>.
+                    * Định dạng ngắt dòng thủ công được tích hợp sẵn qua thuộc tính <code class="bg-slate-100 text-slate-700 px-1 py-0.5 rounded font-semibold">breakLine: true</code>
                 </span>
-                <button id="analyzeBtn" onclick="analyzeText()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-sm px-6 py-2.5 rounded-xl shadow-md shadow-orange-100 transition flex items-center gap-2">
+                <button id="analyzeBtn" onclick="analyzeText()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold text-sm px-6 py-2 rounded-lg transition flex items-center gap-2 shadow-md">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                     <span>Phân Tách & Dịch Cụm Từ</span>
                 </button>
@@ -208,7 +208,7 @@
         <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 min-h-[220px] relative">
             <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
                 <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-eye text-orange-500"></i> Kết quả phân tách (Có ngắt dòng thủ công)
+                    <i class="fa-solid fa-eye text-orange-500"></i> Kết quả phân tách (Có ngắt dòng tự động)
                 </h2>
                 <div class="flex items-center gap-2">
                     <span id="engineBadge" class="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-medium">
@@ -256,8 +256,8 @@
                 <div class="flex items-center gap-2.5">
                     <i class="fa-solid fa-code text-amber-400 text-lg"></i>
                     <div>
-                        <h3 class="font-bold text-sm text-white">Cấu trúc dữ liệu mảng (Dạng ngắt dòng thủ công)</h3>
-                        <p class="text-[11px] text-slate-400">Định dạng JSON / JavaScript array chuẩn</p>
+                        <h3 class="font-bold text-sm text-white">Cấu trúc dữ liệu mảng (Dạng ngắt dòng tự động)</h3>
+                        <p class="text-[11px] text-slate-400">Định dạng JSON / JavaScript array chuẩn với breakLine: true</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -278,7 +278,13 @@
 
     <script>
         // Văn bản mẫu hiển thị ban đầu trong textarea
-        const DEFAULT_TEXT = `Questions 147–148 refer to the following job posting.\nHelp Wanted\nZestful Cuisine is looking for a server (phục vụ) to join our restaurant's team! We specialize in (chuyên về) French and Spanish (TBN) food.\nThis is a full-time or part-time position. Days and nights are available.\nCandidate (ứng viên) must have a positive (tích cực) attitude (thái độ), excellent (xuất sắc) customer service skills, and the ability (khả năng) to multitask (đa tác vụ) in a fast-paced (nhịp độ nhanh) environment.\nZestful Cuisine offers (cung cấp) competitive (cạnh tranh) pay rates (mức lương) based on (dựa trên) job experience. All servers receive one meal during each shift (ca làm). We provide a career path (lộ trình sự nghiệp) with promotion (thăng chức) and increased pay.\nApplications (đơn xin) are available (có sẵn) on our Web site, www.zestfulcuisine.com.`;
+        const DEFAULT_TEXT = `Questions 147–148 refer to the following job posting.
+Help Wanted
+Zestful Cuisine is looking for a server (phục vụ) to join our restaurant's team! We specialize in French and Spanish (TBN) food.
+This is a full-time or part-time position. Days and nights are available.
+Candidate (ứng viên) must have a positive (tích cực) attitude (thái độ), excellent (xuất sắc) customer service skills, and the ability (khả năng) to multitask (đa tác vụ) in a fast-paced (nhịp độ nhanh) environment.
+Zestful Cuisine offers (cung cấp) competitive (cạnh tranh) pay rates (mức lương) based on (dựa trên) job experience. All servers receive one meal during each shift (ca làm). We provide a career path (lộ trình sự nghiệp) with promotion (thăng chức) and increased pay.
+Applications (đơn xin) are available (có sẵn) on our Web site, www.zestfulcuisine.com.`;
 
         // Dữ liệu mẫu chuẩn có tích hợp ngắt dòng thủ công (breakLine: true)
         const DEFAULT_PARSED_DATA = [
@@ -375,16 +381,35 @@
             renderParsedData(DEFAULT_PARSED_DATA, "Manual BreakLine Parser");
         }
 
-function renderParsedData(parsedItems, engineName = "Manual Parser") {
-            currentParsedItems = parsedItems;
+        function addAutoBreakLines(items) {
+            if (!Array.isArray(items) || items.length === 0) return items;
+
+            const normalized = JSON.parse(JSON.stringify(items));
+
+            normalized.forEach((item, index) => {
+                const previousText = index > 0 ? String(normalized[index - 1]?.text || '') : '';
+                const hasLineBreakFlag = !!item.breakLine;
+                const previousEndsSentence = /[.!?]$/.test(previousText.trim());
+                const currentContainsNewline = /\n/.test(String(item.text || ''));
+
+                if (index === 0 || hasLineBreakFlag || previousEndsSentence || currentContainsNewline) {
+                    item.breakLine = true;
+                }
+            });
+
+            return normalized;
+        }
+
+        function renderParsedData(parsedItems, engineName = "Manual Parser") {
+            const itemsWithBreakLines = addAutoBreakLines(parsedItems);
+            currentParsedItems = itemsWithBreakLines;
             const container = document.getElementById('resultContent');
             container.innerHTML = '';
 
-            document.getElementById('phraseCount').innerText = `${parsedItems.length} cụm từ`;
+            document.getElementById('phraseCount').innerText = `${itemsWithBreakLines.length} cụm từ`;
             document.getElementById('engineBadge').innerText = engineName;
 
-            parsedItems.forEach((item, index) => {
-                // Kiểm tra nếu có breakLine hoặc là phần tử đầu tiên thì tiến hành tạo dòng mới
+            itemsWithBreakLines.forEach((item, index) => {
                 if (item.breakLine || index === 0) {
                     const lineBreak = document.createElement('div');
                     lineBreak.className = index === 0 ? 'w-full mb-1' : 'w-full mt-4 mb-1 pt-2 border-t border-slate-100';
@@ -462,7 +487,6 @@ function renderParsedData(parsedItems, engineName = "Manual Parser") {
                 }
             }
 
-            // Nếu không có API key thì dùng dữ liệu mẫu hiện tại
             renderParsedData(DEFAULT_PARSED_DATA, "Manual BreakLine Parser");
         }
 
@@ -479,7 +503,7 @@ Classify into:
 - "adjp": Adjective/Adverb Phrase (Cụm tính từ / Phó từ)
 - "other": Function words / Punctuation (Thành phần lẻ)
 
-MUST retain bracketed notes like (phục vụ). Provide Vietnamese translation in 'viTranslation' and type name in 'grammarName'. Return pure JSON array.`;
+MUST retain bracketed notes like (phục vụ). Provide Vietnamese translation in 'viTranslation' and type name in 'grammarName'. Return pure JSON array. The front-end will automatically add breakLine: true based on sentence boundaries, so do not include breakLine in the response.`;
 
             const payload = {
                 contents: [{ parts: [{ text: rawText }] }],
